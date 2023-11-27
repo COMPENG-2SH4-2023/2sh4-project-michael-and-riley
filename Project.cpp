@@ -57,7 +57,26 @@ void RunLogic(void)
 void DrawScreen(void)
 {
     MacUILib_clearScreen();    
-
+    for (int i = 0; i < 10; i++)
+    {
+        for ( int j = 0; j < 20; j++)
+        {
+            // Prints the border of the draw area.
+            if (i == 0 || i == (10 - 1))
+            {
+                MacUILib_printf("#");
+            }
+            else if (j == 0 || j == (20 - 1))
+            {
+                MacUILib_printf("#");
+            }
+            else
+            {
+                MacUILib_printf(" ");
+            }
+        }
+        MacUILib_printf("\n");
+    }
 }
 
 void LoopDelay(void)
