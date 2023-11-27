@@ -6,7 +6,9 @@ Player::Player(GameMechs *thisGMRef)
     myDir = STOP;
 
     // more actions to be included
-    playerPos.setObjPos(5,5,'@'); // Temp values
+
+    // Sets the initial player position to the center of the board.
+    playerPos.setObjPos((mainGameMechsRef->getBoardSizeX()) / 2, (mainGameMechsRef->getBoardSizeY()) / 2, '@');
 }
 
 Player::~Player()
@@ -76,7 +78,7 @@ void Player::movePlayer()
         break;
     }
 
-    //Border Wraparound
+    // Border Wraparound
     if (playerPos.x <= 0)
     {
         playerPos.x = (mainGameMechsRef->getBoardSizeX() - 2);
