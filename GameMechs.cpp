@@ -1,5 +1,9 @@
 #include "GameMechs.h"
 
+// Libraries for random object generation
+#include <stdlib.h>
+#include <time.h>
+
 GameMechs::GameMechs()
 {
     input = '\0';
@@ -8,7 +12,7 @@ GameMechs::GameMechs()
     score = 0;
     boardSizeX = 30;
     boardSizeY = 15;
-
+    srand(time(NULL)); // For the random object generation
 }
 
 GameMechs::GameMechs(int boardX, int boardY)
@@ -19,6 +23,7 @@ GameMechs::GameMechs(int boardX, int boardY)
     score = 0;
     boardSizeX = boardX;
     boardSizeY = boardY;
+    srand(time(NULL)); // For the random object generation
 }
 
 // do you need a destructor?
@@ -78,5 +83,34 @@ void GameMechs::incrementScore()
     score += 1;
 }
 
+void GameMechs::generateFood(objPos blockOff)
+{
+    int i = 0, j, randomX, randomY;
+    int conflict = 1;
 
+    while (conflict)
+    {
+        //Generate a new random set of coordinates
+        conflict = 0;
+        randomX = rand() % (boardSizeX);
+        randomY = rand() % (boardSizeY);
 
+        //Ensure the coordinates are within the game border
+        if (randomX >= 1 && randomX < boardSizeX - 1)
+        {
+            if (randomY >= 1 && randomY < boardSizeY - 1)
+            {
+                //Ensure the coordinate does not overlap with the player position
+                if (randomX != blockOff.x && randomY != blockOff.y)
+                {
+                    foodPos.setObjPos(randomX,randomY,'*');
+                }
+            }
+        }
+    }
+}
+
+void GameMechs::getFoodPos(objPos &returnPos)
+{
+    returnPos = foodPos;
+}

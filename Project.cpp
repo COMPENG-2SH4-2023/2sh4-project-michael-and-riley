@@ -46,6 +46,10 @@ void Initialize(void)
     // Initializing:
     game = new GameMechs(); // Use the default constructor for defualt board size.
     player = new Player(game);
+
+    objPos temp;
+    player->getPlayerPos(temp);
+    game->generateFood(temp);
 }
 
 void GetInput(void)
@@ -68,8 +72,9 @@ void DrawScreen(void)
 {
     MacUILib_clearScreen();
 
-    objPos tempPos; // Create a temporary object to retrieve the values which are passed by reference
+    objPos tempPos,tempPos2; // Create a temporary object to retrieve the values which are passed by reference
     player->getPlayerPos(tempPos);
+    game->getFoodPos(tempPos2);
 
     for (int i = 0; i < game->getBoardSizeY(); i++)
     {
@@ -87,6 +92,9 @@ void DrawScreen(void)
             else if (j == tempPos.x && i == tempPos.y) // Prints the character symbol at the current player position
             {
                 MacUILib_printf("%c", tempPos.symbol);
+            }
+            else if(j == tempPos2.x && i == tempPos2.y){
+                MacUILib_printf("%c", tempPos2.symbol);
             }
             else
             {
