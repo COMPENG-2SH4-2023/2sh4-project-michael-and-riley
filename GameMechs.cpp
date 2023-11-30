@@ -1,5 +1,4 @@
 #include "GameMechs.h"
-
 // Libraries for random object generation
 #include <stdlib.h>
 #include <time.h>
@@ -83,7 +82,7 @@ void GameMechs::incrementScore()
     score += 1;
 }
 
-void GameMechs::generateFood(objPos blockOff)
+void GameMechs::generateFood(objPosArrayList* blockOff)
 {
     int i = 0, j, randomX, randomY;
     int conflict = 1;
@@ -91,23 +90,27 @@ void GameMechs::generateFood(objPos blockOff)
     while (conflict)
     {
         //Generate a new random set of coordinates
+        objPos tempBlockCheck;
         conflict = 0;
-        randomX = rand() % (boardSizeX);
-        randomY = rand() % (boardSizeY);
-
-        //Ensure the coordinates are within the game border
-        if (randomX >= 1 && randomX < boardSizeX - 1)
+        randomX = (rand() % (boardSizeX-2))+1;
+        randomY = (rand() % (boardSizeY-2))+1;
+        
+                //Ensure the coordinate does not overlap with the player position 
+        for (int k = 0; k < blockOff->getSize(); k++)
         {
-            if (randomY >= 1 && randomY < boardSizeY - 1)
+            blockOff->getElement(tempBlockCheck, k );
+            if(tempBlockCheck.x == randomX && tempBlockCheck.y == randomY)
             {
-                //Ensure the coordinate does not overlap with the player position
-                if (randomX != blockOff.x && randomY != blockOff.y)
-                {
-                    foodPos.setObjPos(randomX,randomY,'*');
-                }
+                conflict = 1;
             }
         }
+        if (conflict == 0)
+        {
+            foodPos.setObjPos(randomX,randomY,'*');
+        }
     }
+        
+    
 }
 
 void GameMechs::getFoodPos(objPos &returnPos)
