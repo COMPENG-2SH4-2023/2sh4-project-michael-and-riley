@@ -5,16 +5,13 @@ Player::Player(GameMechs *thisGMRef)
     mainGameMechsRef = thisGMRef;
     myDir = STOP;
     // more actions to be included
-    objPos tempPos;
-    // Sets the initial player position to the center of the board.
-    tempPos.setObjPos((mainGameMechsRef->getBoardSizeX()) / 2, (mainGameMechsRef->getBoardSizeY()) / 2, '@');
+    
     playerPosList = new objPosArrayList();
+
+    // Sets the initial player position to the center of the board.
+    objPos tempPos(mainGameMechsRef->getBoardSizeX() / 2, (mainGameMechsRef->getBoardSizeY()) / 2, '*');
     playerPosList->insertHead(tempPos);
-    //alternative? playerPosList.insertHead(setObjPos((mainGameMechsRef->getBoardSizeX()) / 2, (mainGameMechsRef->getBoardSizeY()) / 2, '@'););
-    playerPosList->insertHead(tempPos);
-    playerPosList->insertHead(tempPos);
-    playerPosList->insertHead(tempPos);
-    playerPosList->insertHead(tempPos);
+
 }
 
 Player::~Player()
@@ -23,7 +20,7 @@ Player::~Player()
     delete playerPosList;
 }
 
-objPosArrayList* Player::getPlayerPos()
+objPosArrayList *Player::getPlayerPos()
 {
     // return the reference to the playerPos arrray list
     return playerPosList;
@@ -31,7 +28,7 @@ objPosArrayList* Player::getPlayerPos()
 
 void Player::updatePlayerDir()
 {
-    
+
     // PPA3 input processing logic
     switch (mainGameMechsRef->getInput())
     {
@@ -106,8 +103,17 @@ void Player::movePlayer()
     {
         currHead.y = currHead.y % (mainGameMechsRef->getBoardSizeY() - 2);
     }
-    
-    playerPosList->insertHead(currHead);  //insert current head
 
-    playerPosList->removeTail();    //remove tail   
+    playerPosList->insertHead(currHead); // insert current head
+
+    // Detects collision with food object
+    objPos foodPos;
+    mainGameMechsRef->getFoodPos(foodPos);
+    if (!currHead.isPosEqual(&foodPos))
+    {
+        playerPosList->removeTail(); // remove tail if no collision is detected
+    }
+    else{
+        mainGameMechsRef->generateFood(playerPosList);
+    }
 }
