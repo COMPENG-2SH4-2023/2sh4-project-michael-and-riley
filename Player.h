@@ -22,6 +22,9 @@ class Player
         objPosArrayList* getPlayerPos(); 
         void updatePlayerDir();
         void movePlayer();
+        bool checkFoodConsumption(objPos &curHeadPos);
+        void increasePlayerSize(objPos &curHeadPos);
+        bool checkSelfCollision(objPos &curHeadPos);
 
     private:
         objPosArrayList* playerPosList;

@@ -106,29 +106,55 @@ void Player::movePlayer()
         currHead.y = currHead.y % (mainGameMechsRef->getBoardSizeY() - 2);
     }
 
-    playerPosList->insertHead(currHead); // insert current head
+    // Check if collided with a food object
+    if (checkFoodConsumption(currHead))
+    {
+        increasePlayerSize(currHead);
+    }
+    else
+    {
+        playerPosList->insertHead(currHead);
+        playerPosList->removeTail(); // remove tail if no collision is detected
+    }
 
-    // Detect self collisions
+    // Check for self collisions
+    if (checkSelfCollision(currHead))
+    {
+        // If a collsion is detected, set the exit and lose flags to true and exit.
+        mainGameMechsRef->setExitTrue();
+        mainGameMechsRef->setLoseFlag();
+    }
+}
+
+bool Player::checkFoodConsumption(objPos &curHeadPos)
+{
+    // Detects collision with food object
+    objPos foodPos;
+    mainGameMechsRef->getFoodPos(foodPos);
+
+    if (curHeadPos.isPosEqual(&foodPos))
+    {
+        return true;
+    }
+    return false;
+}
+
+void Player::increasePlayerSize(objPos &curHeadPos)
+{
+    playerPosList->insertHead(curHeadPos);
+    mainGameMechsRef->generateFood(playerPosList);
+}
+
+bool Player::checkSelfCollision(objPos &curHeadPos)
+{
     objPos tempBodyPos;
     for (int i = 1; i < playerPosList->getSize() - 1; i++) // Start the loop after the head position
     {
         playerPosList->getElement(tempBodyPos, i); // Get each body position
-        if (currHead.isPosEqual(&tempBodyPos))
+        if (curHeadPos.isPosEqual(&tempBodyPos))
         {
-            mainGameMechsRef->setExitTrue();
-            mainGameMechsRef->setLoseFlag(); // If a collsion is detected, set the exit and lose flags to true and exit.
+            return true;
         }
     }
-
-    // Detects collision with food object
-    objPos foodPos;
-    mainGameMechsRef->getFoodPos(foodPos);
-    if (!currHead.isPosEqual(&foodPos))
-    {
-        playerPosList->removeTail(); // remove tail if no collision is detected
-    }
-    else
-    {
-        mainGameMechsRef->generateFood(playerPosList);
-    }
+    return false;
 }
