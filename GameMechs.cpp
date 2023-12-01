@@ -106,7 +106,7 @@ void GameMechs::generateFood(objPosArrayList *blockOff)
         }
         if (conflict == 0)
         {
-            foodPos.setObjPos(randomX, randomY, '*');
+            foodPos.setObjPos(randomX, randomY, 'O');
         }
     }
     score = blockOff->getSize() - 1; // Uses the size of array list to keep track of the score

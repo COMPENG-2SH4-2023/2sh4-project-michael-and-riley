@@ -9,8 +9,6 @@ using namespace std;
 
 #define DELAY_CONST 100000
 
-bool exitFlag;
-
 void Initialize(void);
 void GetInput(void);
 void RunLogic(void);
@@ -27,7 +25,8 @@ int main(void)
 
     Initialize();
 
-    while (exitFlag == false)
+    // Use the exit flag from the game mechanics class
+    while (game->getExitFlagStatus() == false)
     {
         GetInput();
         RunLogic();
@@ -43,14 +42,11 @@ void Initialize(void)
     MacUILib_init();
     MacUILib_clearScreen();
 
-    exitFlag = false;
-
     // Initializing:
     game = new GameMechs(); // Use the default constructor for defualt board size.
     player = new Player(game);
-    objPosArrayList* startBody = player->getPlayerPos();
+    objPosArrayList *startBody = player->getPlayerPos();
     game->generateFood(startBody);
-    
 }
 
 void GetInput(void)
@@ -73,11 +69,10 @@ void DrawScreen(void)
 {
     MacUILib_clearScreen();
     bool drawn;
-    objPosArrayList* playerBody = player->getPlayerPos();
+    objPosArrayList *playerBody = player->getPlayerPos();
     objPos tempPos2, tempBody; // Create a temporary object to retrieve the values which are passed by reference
     game->getFoodPos(tempPos2);
-    
-    
+
     for (int i = 0; i < game->getBoardSizeY(); i++)
     {
         for (int j = 0; j < game->getBoardSizeX(); j++)
@@ -85,14 +80,15 @@ void DrawScreen(void)
             drawn = false;
             for (int k = 0; k < playerBody->getSize(); k++)
             {
-                playerBody->getElement(tempBody, k );
-                if(tempBody.x == j && tempBody.y == i)
+                playerBody->getElement(tempBody, k);
+                if (tempBody.x == j && tempBody.y == i)
                 {
-                    MacUILib_printf("%c",tempBody.symbol);
+                    MacUILib_printf("%c", tempBody.symbol);
                     drawn = true;
                 }
             }
-            if (drawn) continue;
+            if (drawn)
+                continue;
             // Prints the static border in the draw area
             if (i == 0 || i == (game->getBoardSizeY() - 1))
             {
@@ -102,8 +98,9 @@ void DrawScreen(void)
             {
                 MacUILib_printf("#");
             }
-            
-            else if(j == tempPos2.x && i == tempPos2.y){
+
+            else if (j == tempPos2.x && i == tempPos2.y)
+            {
                 MacUILib_printf("%c", tempPos2.symbol);
             }
             else
@@ -113,7 +110,7 @@ void DrawScreen(void)
         }
         MacUILib_printf("\n");
     }
-    
+    MacUILib_printf("Score: %d\n", game->getScore());
 }
 
 void LoopDelay(void)
@@ -124,6 +121,12 @@ void LoopDelay(void)
 void CleanUp(void)
 {
     MacUILib_clearScreen();
+
+    if (game->getLoseFlagStatus()) // If the player self collided, print game over message
+    {
+        MacUILib_printf("--- GAME OVER ---\n");
+    }
+    MacUILib_printf("Exiting game... \nThank you for playing!\n");
 
     MacUILib_uninit();
 }

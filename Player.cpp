@@ -5,13 +5,12 @@ Player::Player(GameMechs *thisGMRef)
     mainGameMechsRef = thisGMRef;
     myDir = STOP;
     // more actions to be included
-    
+
     playerPosList = new objPosArrayList();
 
     // Sets the initial player position to the center of the board.
     objPos tempPos(mainGameMechsRef->getBoardSizeX() / 2, (mainGameMechsRef->getBoardSizeY()) / 2, '*');
     playerPosList->insertHead(tempPos);
-
 }
 
 Player::~Player()
@@ -55,6 +54,9 @@ void Player::updatePlayerDir()
         {
             myDir = RIGHT;
         }
+        break;
+    case 27: // Escape key to force exit
+        mainGameMechsRef->setExitTrue();
         break;
     default:
         break;
@@ -106,6 +108,18 @@ void Player::movePlayer()
 
     playerPosList->insertHead(currHead); // insert current head
 
+    // Detect self collisions
+    objPos tempBodyPos;
+    for (int i = 1; i < playerPosList->getSize() - 1; i++) // Start the loop after the head position
+    {
+        playerPosList->getElement(tempBodyPos, i); // Get each body position
+        if (currHead.isPosEqual(&tempBodyPos))
+        {
+            mainGameMechsRef->setExitTrue();
+            mainGameMechsRef->setLoseFlag(); // If a collsion is detected, set the exit and lose flags to true and exit.
+        }
+    }
+
     // Detects collision with food object
     objPos foodPos;
     mainGameMechsRef->getFoodPos(foodPos);
@@ -113,7 +127,8 @@ void Player::movePlayer()
     {
         playerPosList->removeTail(); // remove tail if no collision is detected
     }
-    else{
+    else
+    {
         mainGameMechsRef->generateFood(playerPosList);
     }
 }
