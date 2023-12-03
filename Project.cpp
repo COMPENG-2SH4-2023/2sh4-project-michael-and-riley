@@ -4,6 +4,7 @@
 #include "Player.h"
 #include "GameMechs.h"
 #include "objPosArrayList.h"
+#include "Food.h"
 
 using namespace std;
 
@@ -19,6 +20,7 @@ void CleanUp(void);
 // Global declarations:
 GameMechs *game;
 Player *player;
+Food *food;
 
 int main(void)
 {
@@ -44,9 +46,10 @@ void Initialize(void)
 
     // Initializing:
     game = new GameMechs(); // Use the default constructor for defualt board size.
-    player = new Player(game);
+    food = new Food(game);
+    player = new Player(game, food);
     objPosArrayList *startBody = player->getPlayerPos();
-    game->generateFood(startBody);
+    food->generateFood(startBody);
 }
 
 void GetInput(void)
@@ -70,15 +73,16 @@ void DrawScreen(void)
     MacUILib_clearScreen();
     bool drawn;
     objPosArrayList *playerBody = player->getPlayerPos();
-    objPos tempPos2, tempBody; // Create a temporary object to retrieve the values which are passed by reference
-    game->getFoodPos(tempPos2);
+    objPosArrayList *foodList = food->getFoodPos();
+    objPos tempBody, tempFood; // Create a temporary object to retrieve the values which are passed by reference
 
+    // Loop through every x,y coordinate
     for (int i = 0; i < game->getBoardSizeY(); i++)
     {
         for (int j = 0; j < game->getBoardSizeX(); j++)
         {
             drawn = false;
-            for (int k = 0; k < playerBody->getSize(); k++)
+            for (int k = 0; k < playerBody->getSize(); k++) // Draw body pieces.
             {
                 playerBody->getElement(tempBody, k);
                 if (tempBody.x == j && tempBody.y == i)
@@ -87,8 +91,21 @@ void DrawScreen(void)
                     drawn = true;
                 }
             }
+            if (drawn) // If a body unit was drawn, increment i and repeat.
+                continue;
+
+            for (int k = 0; k < foodList->getSize(); k++) // Draw food objects
+            {
+                foodList->getElement(tempFood, k);
+                if (tempFood.x == j && tempFood.y == i)
+                {
+                    MacUILib_printf("%c", tempFood.symbol);
+                    drawn = true;
+                }
+            }
             if (drawn)
                 continue;
+
             // Prints the static border in the draw area
             if (i == 0 || i == (game->getBoardSizeY() - 1))
             {
@@ -97,11 +114,6 @@ void DrawScreen(void)
             else if (j == 0 || j == (game->getBoardSizeX() - 1))
             {
                 MacUILib_printf("#");
-            }
-
-            else if (j == tempPos2.x && i == tempPos2.y)
-            {
-                MacUILib_printf("%c", tempPos2.symbol);
             }
             else
             {

@@ -1,7 +1,4 @@
 #include "GameMechs.h"
-// Libraries for random object generation
-#include <stdlib.h>
-#include <time.h>
 
 GameMechs::GameMechs()
 {
@@ -11,7 +8,6 @@ GameMechs::GameMechs()
     score = 0;
     boardSizeX = 30;
     boardSizeY = 15;
-    srand(time(NULL)); // For the random object generation
 }
 
 GameMechs::GameMechs(int boardX, int boardY)
@@ -22,7 +18,6 @@ GameMechs::GameMechs(int boardX, int boardY)
     score = 0;
     boardSizeX = boardX;
     boardSizeY = boardY;
-    srand(time(NULL)); // For the random object generation
 }
 
 // do you need a destructor?
@@ -80,39 +75,4 @@ int GameMechs::getScore()
 void GameMechs::incrementScore()
 {
     score += 1;
-}
-
-void GameMechs::generateFood(objPosArrayList *blockOff)
-{
-    int i = 0, j, randomX, randomY;
-    int conflict = 1;
-
-    while (conflict)
-    {
-        // Generate a new random set of coordinates
-        objPos tempBlockCheck;
-        conflict = 0;
-        randomX = (rand() % (boardSizeX - 2)) + 1;
-        randomY = (rand() % (boardSizeY - 2)) + 1;
-
-        // Ensure the coordinate does not overlap with the player position
-        for (int k = 0; k < blockOff->getSize(); k++)
-        {
-            blockOff->getElement(tempBlockCheck, k);
-            if (tempBlockCheck.x == randomX && tempBlockCheck.y == randomY)
-            {
-                conflict = 1;
-            }
-        }
-        if (conflict == 0)
-        {
-            foodPos.setObjPos(randomX, randomY, 'O');
-        }
-    }
-    score = blockOff->getSize() - 1; // Uses the size of array list to keep track of the score
-}
-
-void GameMechs::getFoodPos(objPos &returnPos)
-{
-    returnPos = foodPos;
 }

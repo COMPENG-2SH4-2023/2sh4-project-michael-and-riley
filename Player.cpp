@@ -1,6 +1,6 @@
 #include "Player.h"
 
-Player::Player(GameMechs *thisGMRef)
+Player::Player(GameMechs *thisGMRef, Food *thisFoodRef)
 {
     mainGameMechsRef = thisGMRef;
     myDir = STOP;
@@ -11,6 +11,8 @@ Player::Player(GameMechs *thisGMRef)
     // Sets the initial player position to the center of the board.
     objPos tempPos(mainGameMechsRef->getBoardSizeX() / 2, (mainGameMechsRef->getBoardSizeY()) / 2, '*');
     playerPosList->insertHead(tempPos);
+
+    foodList = thisFoodRef; // Added a reference to the food class for the bonus iteration
 }
 
 Player::~Player()
@@ -109,7 +111,6 @@ void Player::movePlayer()
     // Check if collided with a food object
     if (checkFoodConsumption(currHead))
     {
-        increasePlayerSize(currHead);
     }
     else
     {
@@ -129,12 +130,42 @@ void Player::movePlayer()
 bool Player::checkFoodConsumption(objPos &curHeadPos)
 {
     // Detects collision with food object
-    objPos foodPos;
-    mainGameMechsRef->getFoodPos(foodPos);
+    objPosArrayList *foodPosList;
+    foodPosList = foodList->getFoodPos();
 
-    if (curHeadPos.isPosEqual(&foodPos))
+    objPos temp; // Holds the passed by reference elements
+
+    for (int i = 0; i < foodPosList->getSize(); i++) // Loop through all the food objects on the board
     {
-        return true;
+        foodPosList->getElement(temp, i);
+        if (curHeadPos.isPosEqual(&temp)) // If the coordinates match,
+        {
+            if (temp.getSymbol() == '-') // Shrinks the player by 5 (Player must be bigger than 5 units)
+            {
+                if (playerPosList->getSize() > 5)
+                {
+                    for (int j = 0; j < 5; j++)
+                    {
+                        playerPosList->removeTail();
+                    }
+                }
+                foodList->generateFood(playerPosList);
+            }
+            else if (temp.getSymbol() == '+') // Gain an extra 5 points
+            {
+                increasePlayerSize(curHeadPos);
+                for (int k = 0; k < 5; k++)
+                {
+                    mainGameMechsRef->incrementScore();
+                }
+            }
+            else // 'O' Regular food object
+            {
+                increasePlayerSize(curHeadPos);
+            }
+
+            return true;
+        }
     }
     return false;
 }
@@ -142,16 +173,17 @@ bool Player::checkFoodConsumption(objPos &curHeadPos)
 void Player::increasePlayerSize(objPos &curHeadPos)
 {
     playerPosList->insertHead(curHeadPos);
-    mainGameMechsRef->generateFood(playerPosList);
+    foodList->generateFood(playerPosList);
+    mainGameMechsRef->incrementScore();
 }
 
 bool Player::checkSelfCollision(objPos &curHeadPos)
 {
     objPos tempBodyPos;
-    for (int i = 1; i < playerPosList->getSize() - 1; i++) // Start the loop after the head position
+    for (int i = 1; i < playerPosList->getSize(); i++) // Start the loop after the head position
     {
         playerPosList->getElement(tempBodyPos, i); // Get each body position
-        if (curHeadPos.isPosEqual(&tempBodyPos))
+        if (curHeadPos.isPosEqual(&tempBodyPos))   // If a collision is detected, return true
         {
             return true;
         }
